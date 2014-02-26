@@ -15,8 +15,7 @@
 #include "uart.h"
 #include "stdio.h"
 
-
-
+extern __IO uint16_t ADCConvertedValue;
 
  int main(void)
  {
@@ -25,11 +24,12 @@
 //	NVIC_Configuration(); 	 //设置NVIC中断分组2:2位抢占优先级，2位响应优先级
 //	 wchar_t ch[]="this is a test" ;
 
-	 char ch[]="zhanghongyan xihuan jianglingling! ";
+//	 char ch[]="zhanghongyan xihuan jianglingling! ";
 //	 uint16_t k[3]={100,15,20};
-
+//	 __IO uint16_t value[1];
 	LED_Init();			     //LED端口初始化]
 	SysTick_Init();
+	Adc1_Init();
 //	LCD_Init();
 //
 //	POINT_COLOR=RED;
@@ -49,7 +49,11 @@
 			Delay_us(25000);
 			LED1(OFF);             //	 也可以使用	  GPIO_SetBits(GPIOA,GPIO_Pin_8);
      		LED2(ON);			 // 也可以使用	  GPIO_ResetBits(GPIOD,GPIO_Pin_2) ;
-    		Send_Char(ch);
+//    		Send_Char(ch);
+ //    		value[0] = ADCConvertedValue;
+//    		Send_Data(value,1);
+    		USART_SendData(USART1,ADCConvertedValue);
+    		while( USART_GetFlagStatus(USART1,USART_FLAG_TXE)!= SET);
 	}
  }
 
