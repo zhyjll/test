@@ -25,10 +25,15 @@
 
 
 #include "stm32f10x.h"
+#include "systick.h"
 
 
 void Adc1_Init(void);
 void ADC1_Mode_config();
 void ADC1_GPIO_Config(void);
+
+//void DMA_Configuration(DMA_Channel_TypeDef*DMA_CHx,u32 cpar,u32 cmar,u16 cndtr);//≈‰÷√DMA1_CHx
+//
+//void ADC1_Configuration(void);
 
 #endif

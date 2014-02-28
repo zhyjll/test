@@ -9,15 +9,37 @@
 
 
 
+//int fputc(int ch, FILE *f)
+//{
+// /* 将 Printf 内容发往串口 */
+//
+//	USART_SendData(USART1, (unsigned char) ch);
+//
+//	while( USART_GetFlagStatus(USART1,USART_FLAG_TXE)!= SET);
+//	return (ch);
+//}
+
+
+#pragma import(__use_no_semihosting)
+//标准库需要的支持函数
+struct __FILE
+{
+	int handle;
+
+};
+
+FILE __stdout;
+
+//重定义fputc函数
 int fputc(int ch, FILE *f)
 {
- /* 将 Printf 内容发往串口 */
-
-	USART_SendData(USART1, (unsigned char) ch);
-
-	while( USART_GetFlagStatus(USART1,USART_FLAG_TXE)!= SET);
-	return (ch);
+	while((USART1->SR&0X40)==0);//循环发送,直到发送完毕
+    USART1->DR = (u8) ch;
+	return ch;
 }
+
+
+
 
 
 void Uart_Config(void)
@@ -100,4 +122,28 @@ void Send_Char(char string[])
 		USART_SendData(USART1,buff[i]);
 		while( USART_GetFlagStatus(USART1,USART_FLAG_TXE)!= SET);
 	}
+}
+
+
+void Send_Num(uint16_t buff)
+{
+	char ch[7]="0000  ";
+//	uint16_t buff=3050;
+	u8 qianwei,baiwei,shiwei,gewei,c,d;
+	u8 i;
+	uint16_t b;
+	qianwei=buff/1000;
+	b=buff%1000;
+	baiwei=b/100;
+	c=b%100;
+	shiwei=c/10;
+	d=c%10;
+	gewei=d;
+	ch[0] = qianwei;
+	ch[1] = baiwei;
+	ch[2] = shiwei;
+	ch[3] = gewei;
+	for(i=0;i<4;i++)
+		ch[i]=ch[i]+48;
+	Send_Char(ch);
 }

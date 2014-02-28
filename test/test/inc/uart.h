@@ -16,6 +16,6 @@ void Send_Data(uint16_t buff[],int length);
 //void Send_Char(char string[],int length);
 
 void Send_Char(char string[]);
-
+void Send_Num(uint16_t buff);
 
 #endif /* UART_H_ */

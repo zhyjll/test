@@ -11,7 +11,7 @@ static __IO u32 TimingDelay;
 
  void SysTick_Init(void)
 {
-	if(SysTick_Config(SystemCoreClock / 100000))
+	if(SysTick_Config(SystemCoreClock / 1000000))
 	{
 		while(1);
 	}
