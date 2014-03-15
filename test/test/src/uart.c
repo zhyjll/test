@@ -7,41 +7,6 @@
 
 #include "uart.h"
 
-
-
-//int fputc(int ch, FILE *f)
-//{
-// /* 将 Printf 内容发往串口 */
-//
-//	USART_SendData(USART1, (unsigned char) ch);
-//
-//	while( USART_GetFlagStatus(USART1,USART_FLAG_TXE)!= SET);
-//	return (ch);
-//}
-
-
-#pragma import(__use_no_semihosting)
-//标准库需要的支持函数
-struct __FILE
-{
-	int handle;
-
-};
-
-FILE __stdout;
-
-//重定义fputc函数
-int fputc(int ch, FILE *f)
-{
-	while((USART1->SR&0X40)==0);//循环发送,直到发送完毕
-    USART1->DR = (u8) ch;
-	return ch;
-}
-
-
-
-
-
 void Uart_Config(void)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
@@ -80,29 +45,6 @@ void Send_Data(uint16_t buff[],int length)
 
 }
 
-
-//void Send_Char(char string[],int length)
-//{
-//	int ch[length];
-//	uint16_t buff[length];
-//	int i;
-//	int a;
-//	for(i=0;i<length;i++)
-//	{
-//		a=string[i];
-//		ch[i]=a;
-//	}
-//
-//	for(i=0;i<length;i++)
-//	{
-//		buff[i] = ch[i]&0x00ff;
-//		USART_SendData(USART1,buff[i]);
-//		while( USART_GetFlagStatus(USART1,USART_FLAG_TXE)!= SET);
-//	}
-//
-//}
-
-
 void Send_Char(char string[])
 {
 	int length = strlen(string);
@@ -127,7 +69,9 @@ void Send_Char(char string[])
 
 void Send_Num(uint16_t buff)
 {
-	char ch[7]="0000  ";
+	char ch[7];
+//	uint16_t data;
+//	data = buff & 0x0fff;
 //	uint16_t buff=3050;
 	u8 qianwei,baiwei,shiwei,gewei,c,d;
 	u8 i;
@@ -145,5 +89,39 @@ void Send_Num(uint16_t buff)
 	ch[3] = gewei;
 	for(i=0;i<4;i++)
 		ch[i]=ch[i]+48;
+	ch[4]='\n';
+	ch[5]='\0';
+//	sprintf(ch,"%d",data);
+//	ch[4]='\n';
 	Send_Char(ch);
 }
+
+
+
+void Send_Float(uint16_t buff)
+{
+	char s[10];
+	float AD_Analog_Value;
+	AD_Analog_Value=(float)buff/4096*3.3;
+	sprintf(s,"%f",AD_Analog_Value); // float to char
+	s[5]=' ';
+	s[6]=' ';
+	s[7]='\n';
+	Send_Char(s);
+}
+
+//int _write (int fd, char *ptr, int len)
+//{
+//  /* Write "len" of char from "ptr" to file id "fd"
+//   * Return number of char written.
+//   * Need implementing with UART here. */
+//	int i;
+//	char ch[]="woshizhang";
+//	for(i=0;i<5;i++)
+//	{
+//		ptr[i]=0;
+//		USART_SendData(USART1,ch[i]);
+////		while( USART_GetFlagStatus(USART1,USART_FLAG_TC) != SET);
+//	}
+//  return len;
+//}

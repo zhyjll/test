@@ -14,6 +14,7 @@
 #include "systick.h"
 #include "uart.h"
 #include "stdio.h"
+#include "unistd.h"
 
 extern __IO uint16_t ADCConvertedValue;
 
@@ -24,10 +25,8 @@ float AD_Analog_Value[Channel_Number];					//AD模拟电压值
 
  int main(void)
  {
-	 u8 i;
-	 u16 data;
-	 u16 k=2500;
-	 char ch[]="wosi";
+	 float temp;
+	 u16 k;
 	SystemInit(); 			 //系统时钟初始化为72M	  SYSCLK_FREQ_72MHz
 //	NVIC_Configuration(); 	 //设置NVIC中断分组2:2位抢占优先级，2位响应优先级
 //	 wchar_t ch[]="this is a test" ;
@@ -44,12 +43,14 @@ float AD_Analog_Value[Channel_Number];					//AD模拟电压值
 //	DMA_Configuration(DMA1_Channel1,(u32)&ADC1->DR,(u32)AD_Digital_Value,Channel_Number );//DMA1通道1；外设为ADC1；
 //
 	POINT_COLOR=RED;
-	LCD_ShowString(30,50,"STM32&ECLIPSE");
-	LCD_ShowString(30,70,"-------------------------");
-	LCD_ShowString(30,90,"ZhangHongYan");
-	LCD_ShowString(30,110,"2014/02/22");
+	LCD_ShowString(30,50,(const u8 *)"STM32&ECLIPSE");
+	LCD_ShowString(30,70,(const u8 *)"-------------------------");
+	LCD_ShowString(30,90,(const u8 *)"JiangLingLing");
+	LCD_ShowString(30,110,(const u8 *)"2014/02/22");
 
-
+	POINT_COLOR=BLUE;//设置字体为蓝色
+	LCD_ShowString(60,130,(const u8 *)"ADC_CH0_VAL:");
+	LCD_ShowString(60,150,(const u8 *)"ADC_CH0_VOL:0.000V");
 
 //	DMA_Cmd(DMA1_Channel1, ENABLE);//启动DMA通道
 //	ADC_SoftwareStartConvCmd(ADC1, ENABLE);//软件启动AD转换
@@ -57,16 +58,12 @@ float AD_Analog_Value[Channel_Number];					//AD模拟电压值
 		while(1)
 	{
 			ADC_SoftwareStartConvCmd(ADC1, ENABLE);//软件启动AD转换
-			while(!ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC));//等待转换结束
+//			while(!ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC));//等待转换结束
 		    while(DMA_GetFlagStatus(DMA1_FLAG_TC1)==RESET);//等待传输完成否则第一位数据容易丢失
 			DMA_ClearFlag(DMA1_FLAG_TC1); //清除通道 1 传输完成标志
 			ADC_SoftwareStartConvCmd(ADC1, DISABLE);//软件启动AD转换
-//			 for( i=0;i<Channel_Number;i++)
-//					{
-//						AD_Analog_Value[i]=(float)AD_Digital_Value[i]*(3.3/4096);
-//					}
-//			 LCD_ShowString(60,150,"ADC_CH0_VOL:0.000V");
-//			LCD_ShowNum(156,130,k,4,16);//显示ADC1通道1的值，也就是数字量，0-4095
+
+
 			Delay_us(500000);
 			LED1(ON);		 //  这里使用了位带操作，也可以使用 GPIO_ResetBits(GPIOA,GPIO_Pin_8);
 			LED2(OFF); 		//	 也可以使用   GPIO_SetBits(GPIOD,GPIO_Pin_2);
@@ -74,18 +71,28 @@ float AD_Analog_Value[Channel_Number];					//AD模拟电压值
 			LED1(OFF);             //	 也可以使用	  GPIO_SetBits(GPIOA,GPIO_Pin_8);
      		LED2(ON);			 // 也可以使用	  GPIO_ResetBits(GPIOD,GPIO_Pin_2) ;
 
-     		data = (ADCConvertedValue&0xff00);
-//     		data>>=8;
-//     		ch[0] = data;
-//    		USART_SendData(USART1,data);
-//     		while( USART_GetFlagStatus(USART1,USART_FLAG_TXE)!= SET);
+     		k=ADCConvertedValue;
+     		LCD_ShowNum(156,130,k,4,16);
 
-     		data = (ADCConvertedValue&0x00ff);
-//     		ch[1]=data;
-//     		Send_Char(ch);
-//     		USART_SendData(USART1,data);
-//     		while( USART_GetFlagStatus(USART1,USART_FLAG_TXE)!= SET);
-     		Send_Num(ADCConvertedValue);
+     		temp=(float)k/4095*3.3;
+     		k=temp;
+     		Send_Num(k);
+     		LCD_ShowNum(156,150,k,1,16);//显示电压值
+    		temp=temp-k;
+    		temp=temp*1000;
+    		k=temp;
+    		LCD_ShowNum(172,150,k,3,16);
+
+
+
+
+
+
+
+    		Delay_us(5);
+//     		Send_Float(ADCConvertedValue);
+//     		printf("woshizhanghongyan\n");
+//     		 printf("Hello, world!");
 
 	}
  }
