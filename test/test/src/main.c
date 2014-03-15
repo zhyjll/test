@@ -8,7 +8,6 @@
 #include "stm32f10x.h"
 #include "led.h"
 #include "lcd.h"
-//#include "delay.h"
 #include "sys.h"
 #include "adc.h"
 #include "systick.h"
@@ -16,7 +15,7 @@
 #include "stdio.h"
 #include "unistd.h"
 
-extern __IO uint16_t ADCConvertedValue;
+extern __IO uint16_t ADCConvertedValue[];
 
 
 #define  Channel_Number 2 // 通道数的宏定义
@@ -25,23 +24,20 @@ float AD_Analog_Value[Channel_Number];					//AD模拟电压值
 
  int main(void)
  {
-	 float temp;
-	 u16 k;
+	 float temp,Ad_Analog_Value[3];
+	 u16 cache[3];
+	 u8 i;
+	 u16 k,m;
 	SystemInit(); 			 //系统时钟初始化为72M	  SYSCLK_FREQ_72MHz
-//	NVIC_Configuration(); 	 //设置NVIC中断分组2:2位抢占优先级，2位响应优先级
-//	 wchar_t ch[]="this is a test" ;
-//	 char ch[]="zhanghongyan xihuan jianglingling! ";
-//	 uint16_t k[3]={100,15,20};
-//	 __IO uint16_t value[1];
+
 	LED_Init();			     //LED端口初始化]
 	SysTick_Init();
 	Adc1_Init();
 	LCD_Init();
 	Uart_Config();
-//	ADC1_Configuration();
+
 	Delay_us(500);
-//	DMA_Configuration(DMA1_Channel1,(u32)&ADC1->DR,(u32)AD_Digital_Value,Channel_Number );//DMA1通道1；外设为ADC1；
-//
+
 	POINT_COLOR=RED;
 	LCD_ShowString(30,50,(const u8 *)"STM32&ECLIPSE");
 	LCD_ShowString(30,70,(const u8 *)"-------------------------");
@@ -51,9 +47,11 @@ float AD_Analog_Value[Channel_Number];					//AD模拟电压值
 	POINT_COLOR=BLUE;//设置字体为蓝色
 	LCD_ShowString(60,130,(const u8 *)"ADC_CH0_VAL:");
 	LCD_ShowString(60,150,(const u8 *)"ADC_CH0_VOL:0.000V");
-
-//	DMA_Cmd(DMA1_Channel1, ENABLE);//启动DMA通道
-//	ADC_SoftwareStartConvCmd(ADC1, ENABLE);//软件启动AD转换
+	LCD_ShowString(60,170,(const u8 *)"ADC_CH0_VAL:");
+	LCD_ShowString(60,190,(const u8 *)"ADC_CH0_VOL:0.000V");
+	LCD_ShowString(60,210,(const u8 *)"ADC_CH0_VAL:");
+	LCD_ShowString(60,230,(const u8 *)"ADC_CH0_VOL:0.000V");
+	Delay_us(2000);//这个地方特定添加延时 不然显示屏没有显示
 
 		while(1)
 	{
@@ -71,9 +69,14 @@ float AD_Analog_Value[Channel_Number];					//AD模拟电压值
 			LED1(OFF);             //	 也可以使用	  GPIO_SetBits(GPIOA,GPIO_Pin_8);
      		LED2(ON);			 // 也可以使用	  GPIO_ResetBits(GPIOD,GPIO_Pin_2) ;
 
-     		k=ADCConvertedValue;
-     		LCD_ShowNum(156,130,k,4,16);
 
+     		for(i=0;i<3;i++)
+     		{
+     			cache[i]=ADCConvertedValue[i];
+     		}
+
+     		k=cache[0];
+     		LCD_ShowNum(156,130,k,4,16);
      		temp=(float)k/4095*3.3;
      		k=temp;
      		Send_Num(k);
@@ -83,16 +86,31 @@ float AD_Analog_Value[Channel_Number];					//AD模拟电压值
     		k=temp;
     		LCD_ShowNum(172,150,k,3,16);
 
+    		Delay_us(500);//这个延时也必须保证足够大，不然显示屏依然不工作
+    		m=cache[1];
+     		LCD_ShowNum(156,170,m,4,16);
+     		temp=(float)m/4095*3.3;
+     		m=temp;
+     		Send_Num(m);
+     		LCD_ShowNum(156,190,m,1,16);//显示电压值
+    		temp=temp-m;
+    		temp=temp*1000;
+    		m=temp;
+    		LCD_ShowNum(172,190,m,3,16);
 
+    		Delay_us(500);//这个延时也必须保证足够大，不然显示屏依然不工作
+    		m=cache[2];
+    		LCD_ShowNum(156,210,m,4,16);
+    		temp=(float)m/4095*3.3;
+    		m=temp;
+    		Send_Num(m);
+    		LCD_ShowNum(156,230,m,1,16);//显示电压值
+    		temp=temp-m;
+    		temp=temp*1000;
+    		m=temp;
+    		LCD_ShowNum(172,230,m,3,16);
+    		Delay_us(500);//这个延时也必须保证足够大，不然显示屏依然不工作
 
-
-
-
-
-    		Delay_us(5);
-//     		Send_Float(ADCConvertedValue);
-//     		printf("woshizhanghongyan\n");
-//     		 printf("Hello, world!");
 
 	}
  }
