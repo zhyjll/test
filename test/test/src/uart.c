@@ -54,8 +54,7 @@ void Send_Char(char string[])
 	int a;
 	for(i=0;i<length;i++)
 	{
-		a=string[i];
-		ch[i]=a;
+		ch[i]=string[i];
 	}
 
 	for(i=0;i<length;i++)
